@@ -19,6 +19,7 @@ final class CategoriesViewController: UIViewController {
         super.viewDidLoad()
         title = "Categories"
         setup()
+        Task { await dataProvider.load() }
     }
 }
 
@@ -68,7 +69,7 @@ private extension CategoriesViewController {
             guard let self else { return UICollectionViewCell() }
             let section = self.dataSource.snapshot().sectionIdentifiers[indexPath.section]
             let cell: HorizontalScrollingCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
-            cell.configure(with: section.jokes.compactMap { $0.image })
+            cell.configure(with: section.jokes)
             return cell
         }
 

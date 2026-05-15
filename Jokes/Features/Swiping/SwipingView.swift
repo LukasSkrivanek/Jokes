@@ -1,22 +1,23 @@
 import SwiftUI
 
 struct SwipingView: View {
-    let dataProvider = JokesDataProvider()
+    @StateObject private var dataProvider = JokesDataProvider()
 
     var body: some View {
         GeometryReader { geometry in
             HStack {
                 Spacer()
                 VStack {
-                    if let jokes = dataProvider.sections.first?.jokes, !jokes.isEmpty {
+                    if dataProvider.isLoading {
+                        ProgressView()
+                    } else if !dataProvider.sections.isEmpty {
                         ZStack {
-                            ForEach(jokes, id: \.self) { joke in
-                                if let image = joke.image {
+                            ForEach(dataProvider.sections) { section in
+                                if let joke = section.jokes.first {
                                     SwipingCard(
                                         configuration: SwipingCard.Configuration(
-                                            image: Image(uiImage: image),
-                                            title: joke.text,
-                                            description: dataProvider.sections.first?.title ?? ""
+                                            title: section.title,
+                                            description: joke.text
                                         ),
                                         onSwipe: { _ in }
                                     )
@@ -37,6 +38,7 @@ struct SwipingView: View {
                 Spacer()
             }
         }
+        .task { await dataProvider.load() }
         .background(.bg)
         .navigationTitle("Swiping")
     }

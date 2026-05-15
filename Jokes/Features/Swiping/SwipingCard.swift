@@ -14,7 +14,6 @@ struct SwipingCard: View {
     }
 
     struct Configuration: Equatable {
-        let image: Image
         let title: String
         let description: String
     }
@@ -32,7 +31,7 @@ struct SwipingCard: View {
     var body: some View {
         VStack {
             Spacer()
-            ScratchView(image: configuration.image, text: configuration.description)
+            ScratchView(text: configuration.description)
             Spacer()
             cardTitle
         }

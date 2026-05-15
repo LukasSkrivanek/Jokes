@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct ScratchView: View {
-    let image: Image
     let text: String
 
     @State private var currentLine = Line()
@@ -10,9 +9,12 @@ struct ScratchView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
-                image
-                    .resizableBordered(cornerRadius: UIConstants.cornerRadius)
-                    .scaledToFit()
+                LinearGradient(
+                    colors: [.brown.opacity(0.5), .brown],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .cornerRadius(UIConstants.cornerRadius)
 
                 RoundedRectangle(cornerRadius: UIConstants.cornerRadius)
                     .fill(.bg)

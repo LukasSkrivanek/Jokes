@@ -7,7 +7,7 @@ final class HorizontalScrollingCollectionViewCell: UICollectionViewCell, Reusabl
         collectionViewLayout: UICollectionViewFlowLayout()
     )
 
-    private var images: [UIImage] = []
+    private var jokes: [Joke] = []
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -18,8 +18,8 @@ final class HorizontalScrollingCollectionViewCell: UICollectionViewCell, Reusabl
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(with images: [UIImage]) {
-        self.images = images
+    func configure(with jokes: [Joke]) {
+        self.jokes = jokes
         collectionView.reloadData()
     }
 }
@@ -53,17 +53,21 @@ private extension HorizontalScrollingCollectionViewCell {
 // MARK: - UICollectionViewDataSource
 extension HorizontalScrollingCollectionViewCell: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        images.count
+        jokes.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCell", for: indexPath)
+        let joke = jokes[indexPath.item]
         cell.contentConfiguration = UIHostingConfiguration {
-            Image(uiImage: self.images[indexPath.item])
-                .resizableBordered(cornerRadius: UIConstants.cornerRadius)
-                .aspectRatio(contentMode: .fit)
+            Text(joke.text)
+                .font(.system(size: 15))
+                .multilineTextAlignment(.center)
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.bg)
                 .cornerRadius(UIConstants.cornerRadius)
-                .clipped()
+                .bordered(cornerRadius: UIConstants.cornerRadius)
         }
         return cell
     }
