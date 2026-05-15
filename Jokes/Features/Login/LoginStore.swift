@@ -6,14 +6,11 @@ final class LoginStore: ObservableObject {
     struct State {
         var email: String = ""
         var password: String = ""
-        var rememberMe: Bool = false
         var isLoading: Bool = false
         var errorMessage: String?
     }
 
     enum Action {
-        case viewDidAppear
-        case rememberMeChanged(Bool)
         case signIn
         case signUp
     }
@@ -21,7 +18,6 @@ final class LoginStore: ObservableObject {
     @Published var state = State()
 
     @Dependency(\.authManager) private var authManager
-    @Dependency(\.keychainService) private var keychainService
 
     private let eventSubject = PassthroughSubject<LoginEvent, Never>()
 
@@ -32,17 +28,6 @@ final class LoginStore: ObservableObject {
     @MainActor
     func send(_ action: Action) {
         switch action {
-        case .viewDidAppear:
-            loadStoredCredentials()
-        case .rememberMeChanged(let remember):
-            state.rememberMe = remember
-            if remember {
-                try? keychainService.storeEmail(state.email)
-                try? keychainService.storePassword(state.password)
-            } else {
-                try? keychainService.removeEmail()
-                try? keychainService.removePassword()
-            }
         case .signIn:
             Task { await signIn() }
         case .signUp:
@@ -53,16 +38,6 @@ final class LoginStore: ObservableObject {
 
 // MARK: - Private
 private extension LoginStore {
-    func loadStoredCredentials() {
-        if let email = try? keychainService.fetchEmail() {
-            state.email = email
-            state.rememberMe = true
-        }
-        if let password = try? keychainService.fetchPassword() {
-            state.password = password
-        }
-    }
-
     func signIn() async {
         state.isLoading = true
         state.errorMessage = nil
@@ -70,10 +45,6 @@ private extension LoginStore {
         do {
             let credentials = Credentials(email: state.email, password: state.password)
             try await authManager.signIn(credentials)
-            if state.rememberMe {
-                try? keychainService.storeEmail(state.email)
-                try? keychainService.storePassword(state.password)
-            }
             eventSubject.send(.loggedIn)
         } catch {
             state.errorMessage = error.localizedDescription

@@ -15,9 +15,6 @@ struct LoginView: View {
             }
             .padding(.horizontal, 32)
         }
-        .onAppear {
-            store.send(.viewDidAppear)
-        }
     }
 }
 
@@ -46,15 +43,6 @@ private extension LoginView {
                 .padding()
                 .background(Color.gray.opacity(0.2))
                 .cornerRadius(UIConstants.cornerRadius)
-
-            Toggle(isOn: Binding(
-                get: { store.state.rememberMe },
-                set: { store.send(.rememberMeChanged($0)) }
-            )) {
-                Text("Remember me")
-                    .textStyle(textType: .caption)
-            }
-            .tint(.brown)
 
             if let error = store.state.errorMessage {
                 Text(error)
