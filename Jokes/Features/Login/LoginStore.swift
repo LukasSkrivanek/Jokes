@@ -1,7 +1,6 @@
 import Combine
 import Foundation
 
-@MainActor
 final class LoginStore: ObservableObject {
     struct State {
         var email: String = ""
@@ -36,6 +35,7 @@ final class LoginStore: ObservableObject {
         self.keychainService = keychainService
     }
 
+    @MainActor
     func send(_ action: Action) {
         switch action {
         case .viewDidAppear:

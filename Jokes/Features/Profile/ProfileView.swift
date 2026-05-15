@@ -76,14 +76,26 @@ private extension ProfileView {
     }
 
     var actionsSection: some View {
-        Button("Replay Onboarding") {
-            store.send(.replayOnboarding)
+        VStack(spacing: 12) {
+            Button("Replay Onboarding") {
+                store.send(.replayOnboarding)
+            }
+            .font(.headline)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(.brown)
+            .cornerRadius(UIConstants.cornerRadius)
+
+            Button("Log Out") {
+                store.send(.logout)
+            }
+            .font(.headline)
+            .foregroundStyle(.red)
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.gray.opacity(0.2))
+            .cornerRadius(UIConstants.cornerRadius)
         }
-        .font(.headline)
-        .foregroundStyle(.white)
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(.brown)
-        .cornerRadius(UIConstants.cornerRadius)
     }
 }

@@ -2,10 +2,21 @@ import Combine
 import SwiftUI
 import UIKit
 
-final class ProfileNavigationCoordinator: NSObject, NavigationControllerCoordinator {
+enum ProfileCoordinatorEvent {
+    case loggedOut(Coordinator)
+}
+
+final class ProfileNavigationCoordinator: NSObject, NavigationControllerCoordinator, EventEmitting {
+    typealias Event = ProfileCoordinatorEvent
+
     private(set) lazy var navigationController: UINavigationController = CustomNavigationController()
     var childCoordinators = [Coordinator]()
     private var cancellables = Set<AnyCancellable>()
+    private let eventSubject = PassthroughSubject<ProfileCoordinatorEvent, Never>()
+
+    var eventPublisher: AnyPublisher<ProfileCoordinatorEvent, Never> {
+        eventSubject.eraseToAnyPublisher()
+    }
 
     private lazy var store: ProfileStore = makeStore()
 
@@ -22,6 +33,8 @@ private extension ProfileNavigationCoordinator {
             switch action {
             case .replayOnboarding:
                 self?.showOnboarding()
+            case .logout:
+                self?.logout()
             }
         }
         return store
@@ -44,5 +57,10 @@ private extension ProfileNavigationCoordinator {
             }
             .store(in: &cancellables)
         navigationController.present(coordinator.navigationController, animated: true)
+    }
+
+    func logout() {
+        try? FirebaseAuthManager().signOut()
+        eventSubject.send(.loggedOut(self))
     }
 }

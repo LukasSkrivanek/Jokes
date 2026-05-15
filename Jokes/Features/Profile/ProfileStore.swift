@@ -4,6 +4,7 @@ import Combine
 final class ProfileStore: ObservableObject {
     enum Action {
         case replayOnboarding
+        case logout
     }
 
     struct State {}

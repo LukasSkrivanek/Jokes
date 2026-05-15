@@ -4,18 +4,31 @@ import UIKit
 protocol AppCoordinating: ViewControllerCoordinator {}
 
 final class AppCoordinator: AppCoordinating {
-    private(set) lazy var rootViewController: UIViewController = makeTabBarFlow()
+    private(set) var rootViewController: UIViewController = UIViewController()
     var childCoordinators = [Coordinator]()
+    var window: UIWindow?
+
     private var cancellables = Set<AnyCancellable>()
+    private let keychainService: KeychainServicing = KeychainService()
+
+    private var isAuthorized: Bool {
+        (try? keychainService.fetchAuthData()) != nil
+    }
 
     func start() {
         setupGlobalAppearance()
-        DispatchQueue.main.async { [weak self] in
-            self?.showOnboardingIfNeeded()
+        if isAuthorized {
+            showTabBar()
+            DispatchQueue.main.async { [weak self] in
+                self?.showOnboardingIfNeeded()
+            }
+        } else {
+            showLogin()
         }
     }
 }
 
+// MARK: - Private
 private extension AppCoordinator {
     func setupGlobalAppearance() {
         UITabBar.appearance().backgroundColor = .brown
@@ -27,10 +40,35 @@ private extension AppCoordinator {
         UINavigationBar.appearance().tintColor = .white
     }
 
-    func makeTabBarFlow() -> UIViewController {
+    func showLogin() {
+        let coordinator = LoginNavigationCoordinator()
+        startChildCoordinator(coordinator)
+        coordinator.eventPublisher
+            .sink { [weak self] event in
+                switch event {
+                case .loggedIn(let coordinator):
+                    self?.release(coordinator: coordinator)
+                    self?.showTabBar()
+                    self?.showOnboardingIfNeeded()
+                }
+            }
+            .store(in: &cancellables)
+        transition(to: coordinator.navigationController)
+    }
+
+    func showTabBar() {
         let coordinator = MainTabBarCoordinator()
         startChildCoordinator(coordinator)
-        return coordinator.rootViewController
+        coordinator.eventPublisher
+            .sink { [weak self] event in
+                switch event {
+                case .loggedOut(let coordinator):
+                    self?.release(coordinator: coordinator)
+                    self?.showLogin()
+                }
+            }
+            .store(in: &cancellables)
+        transition(to: coordinator.rootViewController)
     }
 
     func showOnboardingIfNeeded() {
@@ -48,5 +86,13 @@ private extension AppCoordinator {
             }
             .store(in: &cancellables)
         rootViewController.present(coordinator.navigationController, animated: true)
+    }
+
+    func transition(to viewController: UIViewController) {
+        rootViewController = viewController
+        guard let window else { return }
+        UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
+            window.rootViewController = viewController
+        }
     }
 }

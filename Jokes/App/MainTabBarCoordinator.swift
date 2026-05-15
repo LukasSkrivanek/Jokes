@@ -1,8 +1,21 @@
+import Combine
 import UIKit
 
-final class MainTabBarCoordinator: NSObject, TabBarControllerCoordinator {
+enum MainTabBarCoordinatorEvent {
+    case loggedOut(Coordinator)
+}
+
+final class MainTabBarCoordinator: NSObject, TabBarControllerCoordinator, EventEmitting {
+    typealias Event = MainTabBarCoordinatorEvent
+
     private(set) lazy var tabBarController = UITabBarController()
     var childCoordinators = [Coordinator]()
+    private var cancellables = Set<AnyCancellable>()
+    private let eventSubject = PassthroughSubject<MainTabBarCoordinatorEvent, Never>()
+
+    var eventPublisher: AnyPublisher<MainTabBarCoordinatorEvent, Never> {
+        eventSubject.eraseToAnyPublisher()
+    }
 
     func start() {
         tabBarController.viewControllers = [
@@ -39,6 +52,15 @@ private extension MainTabBarCoordinator {
     func makeProfile() -> UIViewController {
         let coordinator = ProfileNavigationCoordinator()
         startChildCoordinator(coordinator)
+        coordinator.eventPublisher
+            .sink { [weak self] event in
+                switch event {
+                case .loggedOut(let coordinator):
+                    self?.release(coordinator: coordinator)
+                    self?.eventSubject.send(.loggedOut(self!))
+                }
+            }
+            .store(in: &cancellables)
         coordinator.rootViewController.tabBarItem = UITabBarItem(
             title: "About",
             image: UIImage(systemName: "info.circle"),
