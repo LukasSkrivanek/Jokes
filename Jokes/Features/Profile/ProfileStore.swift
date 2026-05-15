@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 
 final class ProfileStore: ObservableObject {
     enum Action {
@@ -11,9 +11,19 @@ final class ProfileStore: ObservableObject {
 
     @Published private(set) var state = State()
 
-    var onAction: ((Action) -> Void)?
+    private let eventSubject = PassthroughSubject<ProfileEvent, Never>()
 
+    var eventPublisher: AnyPublisher<ProfileEvent, Never> {
+        eventSubject.eraseToAnyPublisher()
+    }
+
+    @MainActor
     func send(_ action: Action) {
-        onAction?(action)
+        switch action {
+        case .replayOnboarding:
+            eventSubject.send(.replayOnboarding)
+        case .logout:
+            eventSubject.send(.logout)
+        }
     }
 }

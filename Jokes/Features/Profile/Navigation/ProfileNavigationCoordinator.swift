@@ -20,26 +20,27 @@ final class ProfileNavigationCoordinator: NSObject, NavigationControllerCoordina
     }
 
     @Dependency(\.authManager) private var authManager
-    private lazy var store: ProfileStore = makeStore()
+    private let store = ProfileStore()
 
     func start() {
+        observeStore()
         navigationController.setViewControllers([makeProfileView()], animated: false)
     }
 }
 
 // MARK: - Private
 private extension ProfileNavigationCoordinator {
-    func makeStore() -> ProfileStore {
-        let store = ProfileStore()
-        store.onAction = { [weak self] action in
-            switch action {
-            case .replayOnboarding:
-                self?.showOnboarding()
-            case .logout:
-                self?.logout()
+    func observeStore() {
+        store.eventPublisher
+            .sink { [weak self] event in
+                switch event {
+                case .replayOnboarding:
+                    self?.showOnboarding()
+                case .logout:
+                    self?.logout()
+                }
             }
-        }
-        return store
+            .store(in: &cancellables)
     }
 
     func makeProfileView() -> UIViewController {
