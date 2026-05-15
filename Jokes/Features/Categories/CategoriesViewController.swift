@@ -8,12 +8,29 @@ final class CategoriesViewController: UIViewController, EventEmitting {
     }
 
     private let eventSubject = PassthroughSubject<Event, Never>()
-    var eventPublisher: AnyPublisher<Event, Never> { eventSubject.eraseToAnyPublisher() }
+
+    var eventPublisher: AnyPublisher<Event, Never> {
+        eventSubject.eraseToAnyPublisher()
+    }
+
     private let store: CategoriesStore
-    private lazy var collectionView = UICollectionView(
-        frame: .zero,
-        collectionViewLayout: UICollectionViewFlowLayout()
-    )
+    private lazy var collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.sectionHeadersPinToVisibleBounds = false
+        let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
+        collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        collectionView.backgroundColor = .bg
+        collectionView.showsVerticalScrollIndicator = false
+        collectionView.delegate = self
+        collectionView.register(HorizontalScrollingCollectionViewCell.self)
+        collectionView.register(
+            UICollectionReusableView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: "SectionHeader"
+        )
+        return collectionView
+    }()
     private lazy var activityIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
         indicator.color = .white
@@ -50,7 +67,12 @@ private extension CategoriesViewController {
     func setup() {
         setupCollectionView()
         setupActivityIndicator()
-        observeData()
+        observeStore()
+    }
+
+    func setupCollectionView() {
+        collectionView.dataSource = dataSource
+        view.addSubview(collectionView)
     }
 
     func setupActivityIndicator() {
@@ -61,27 +83,7 @@ private extension CategoriesViewController {
         ])
     }
 
-    func setupCollectionView() {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.sectionHeadersPinToVisibleBounds = false
-
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
-        collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        collectionView.backgroundColor = .bg
-        collectionView.showsVerticalScrollIndicator = false
-        collectionView.delegate = self
-        collectionView.dataSource = dataSource
-        collectionView.register(HorizontalScrollingCollectionViewCell.self)
-        collectionView.register(
-            UICollectionReusableView.self,
-            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-            withReuseIdentifier: "SectionHeader"
-        )
-        view.addSubview(collectionView)
-    }
-
-    func observeData() {
+    func observeStore() {
         store.$state
             .map(\.sections)
             .receive(on: DispatchQueue.main)
@@ -94,7 +96,11 @@ private extension CategoriesViewController {
             .map(\.isLoading)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isLoading in
-                isLoading ? self?.activityIndicator.startAnimating() : self?.activityIndicator.stopAnimating()
+                if isLoading {
+                    self?.activityIndicator.startAnimating()
+                } else {
+                    self?.activityIndicator.stopAnimating()
+                }
             }
             .store(in: &cancellables)
     }
@@ -107,8 +113,10 @@ private extension CategoriesViewController {
     }
 
     func makeDataSource() -> DataSource {
-        let dataSource = DataSource(collectionView: collectionView) { [weak self] (collectionView: UICollectionView, indexPath: IndexPath, _: Joke) -> UICollectionViewCell? in
-            guard let self else { return UICollectionViewCell() }
+        let dataSource = DataSource(collectionView: collectionView) { [weak self] (collectionView, indexPath, _) -> UICollectionViewCell? in
+            guard let self else {
+                return UICollectionViewCell()
+            }
             let section = self.dataSource.snapshot().sectionIdentifiers[indexPath.section]
             let cell: HorizontalScrollingCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
             cell.configure(with: section.jokes, onTap: { [weak self] in
@@ -116,10 +124,16 @@ private extension CategoriesViewController {
             })
             return cell
         }
+        dataSource.supplementaryViewProvider = makeSupplementaryProvider()
+        return dataSource
+    }
 
-        dataSource.supplementaryViewProvider = { [weak self] (collectionView: UICollectionView, kind: String, indexPath: IndexPath) -> UICollectionReusableView? in
+    func makeSupplementaryProvider() -> DataSource.SupplementaryViewProvider {
+        { [weak self] (collectionView, kind, indexPath) -> UICollectionReusableView? in
             guard kind == UICollectionView.elementKindSectionHeader,
-                  let self else { return nil }
+                  let self else {
+                return nil
+            }
             let section = self.dataSource.snapshot().sectionIdentifiers[indexPath.section]
             let headerView = collectionView.dequeueReusableSupplementaryView(
                 ofKind: kind,
@@ -139,8 +153,6 @@ private extension CategoriesViewController {
             ])
             return headerView
         }
-
-        return dataSource
     }
 }
 
