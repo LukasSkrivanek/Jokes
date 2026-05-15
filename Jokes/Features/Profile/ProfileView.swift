@@ -1,7 +1,17 @@
 import SwiftUI
 
 struct ProfileView: View {
-    private let techStack = ["UIKit", "SwiftUI", "Combine", "Coordinator Pattern", "DiffableDataSource"]
+    @ObservedObject var store: ProfileStore
+
+    private let techStack = [
+        "UIKit + SwiftUI (Hybrid)",
+        "Coordinator Pattern",
+        "EventEmitting (Combine)",
+        "Store Pattern",
+        "DiffableDataSource",
+        "Async/Await + TaskGroup",
+        "Chuck Norris API"
+    ]
 
     var body: some View {
         ScrollView {
@@ -9,6 +19,7 @@ struct ProfileView: View {
                 header
                 descriptionSection
                 techStackSection
+                actionsSection
             }
             .padding()
         }
@@ -16,8 +27,11 @@ struct ProfileView: View {
         .ignoresSafeArea()
         .navigationTitle("About")
     }
+}
 
-    private var header: some View {
+// MARK: - Sections
+private extension ProfileView {
+    var header: some View {
         VStack(spacing: 12) {
             Image(systemName: "face.smiling.inverse")
                 .font(.system(size: 72))
@@ -27,13 +41,13 @@ struct ProfileView: View {
             Text("Jokes")
                 .textStyle(textType: .navigationTitle)
 
-            Text("Browse, scratch and swipe through joke categories.")
+            Text("Browse, scratch and swipe through Chuck Norris joke categories.")
                 .textStyle(textType: .caption)
                 .multilineTextAlignment(.center)
         }
     }
 
-    private var descriptionSection: some View {
+    var descriptionSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("About the app")
                 .textStyle(textType: .sectionTitle)
@@ -44,7 +58,7 @@ struct ProfileView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var techStackSection: some View {
+    var techStackSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Tech stack")
                 .textStyle(textType: .sectionTitle)
@@ -59,5 +73,17 @@ struct ProfileView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    var actionsSection: some View {
+        Button("Replay Onboarding") {
+            store.send(.replayOnboarding)
+        }
+        .font(.headline)
+        .foregroundStyle(.white)
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(.brown)
+        .cornerRadius(UIConstants.cornerRadius)
     }
 }
