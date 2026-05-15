@@ -1,4 +1,5 @@
 import Combine
+import Dependencies
 import UIKit
 
 protocol AppCoordinating: ViewControllerCoordinator {}
@@ -9,10 +10,10 @@ final class AppCoordinator: AppCoordinating {
     var window: UIWindow?
 
     private var cancellables = Set<AnyCancellable>()
-    private let keychainService: KeychainServicing = KeychainService()
+    @Dependency(\.authManager) private var authManager
 
     private var isAuthorized: Bool {
-        (try? keychainService.fetchAuthData()) != nil
+        authManager.isSignedIn
     }
 
     func start() {

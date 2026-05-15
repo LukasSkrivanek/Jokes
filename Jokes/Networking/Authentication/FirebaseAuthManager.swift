@@ -1,12 +1,16 @@
 import FirebaseAuth
 import Foundation
 
-final class FirebaseAuthManager: FirebaseAuthManaging {
+final class FirebaseAuthManager: FirebaseAuthManaging, @unchecked Sendable {
     private let auth = Auth.auth()
     private let keychainService: KeychainServicing
 
     init(keychainService: KeychainServicing = KeychainService()) {
         self.keychainService = keychainService
+    }
+
+    var isSignedIn: Bool {
+        auth.currentUser != nil
     }
 
     func signIn(_ credentials: Credentials) async throws {

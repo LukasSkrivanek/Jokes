@@ -1,3 +1,4 @@
+import Dependencies
 import Foundation
 import Combine
 
@@ -25,11 +26,10 @@ final class SwipingStore: ObservableObject {
 
     @Published private(set) var state = State()
 
-    private let service: JokeServicing
+    @Dependency(\.jokeService) var service
     private let category: String?
 
-    init(service: JokeServicing = JokeService(), category: String? = nil) {
-        self.service = service
+    init(category: String? = nil) {
         self.category = category
     }
 

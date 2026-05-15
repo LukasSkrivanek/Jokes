@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		74E2045E2FB71C98005B870B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 74E2045D2FB71C98005B870B /* FirebaseAuth */; };
 		74E2046E2FB71DAE005B870B /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 74E2046D2FB71DAE005B870B /* KeychainAccess */; };
+		74E204802FB725EA005B870B /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = 74E2047F2FB725EA005B870B /* Dependencies */; };
+		74E204822FB725EA005B870B /* DependenciesMacros in Frameworks */ = {isa = PBXBuildFile; productRef = 74E204812FB725EA005B870B /* DependenciesMacros */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,7 +72,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				74E204802FB725EA005B870B /* Dependencies in Frameworks */,
 				74E2046E2FB71DAE005B870B /* KeychainAccess in Frameworks */,
+				74E204822FB725EA005B870B /* DependenciesMacros in Frameworks */,
 				74E2045E2FB71C98005B870B /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -134,6 +138,8 @@
 			packageProductDependencies = (
 				74E2045D2FB71C98005B870B /* FirebaseAuth */,
 				74E2046D2FB71DAE005B870B /* KeychainAccess */,
+				74E2047F2FB725EA005B870B /* Dependencies */,
+				74E204812FB725EA005B870B /* DependenciesMacros */,
 			);
 			productName = Jokes;
 			productReference = 74E2FB342FB4B18E005B870B /* Jokes.app */;
@@ -220,6 +226,7 @@
 			packageReferences = (
 				74E2045C2FB71C98005B870B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				74E2046C2FB71DAE005B870B /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				74E2047E2FB725EA005B870B /* XCRemoteSwiftPackageReference "swift-dependencies" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 74E2FB352FB4B18E005B870B /* Products */;
@@ -620,6 +627,14 @@
 				kind = branch;
 			};
 		};
+		74E2047E2FB725EA005B870B /* XCRemoteSwiftPackageReference "swift-dependencies" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-dependencies.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.12.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -632,6 +647,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 74E2046C2FB71DAE005B870B /* XCRemoteSwiftPackageReference "KeychainAccess" */;
 			productName = KeychainAccess;
+		};
+		74E2047F2FB725EA005B870B /* Dependencies */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 74E2047E2FB725EA005B870B /* XCRemoteSwiftPackageReference "swift-dependencies" */;
+			productName = Dependencies;
+		};
+		74E204812FB725EA005B870B /* DependenciesMacros */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 74E2047E2FB725EA005B870B /* XCRemoteSwiftPackageReference "swift-dependencies" */;
+			productName = DependenciesMacros;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

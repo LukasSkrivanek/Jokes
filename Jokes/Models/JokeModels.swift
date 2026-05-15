@@ -1,3 +1,4 @@
+import Dependencies
 import Foundation
 import Combine
 
@@ -18,11 +19,7 @@ final class JokesDataProvider: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
 
-    private let service: JokeServicing
-
-    init(service: JokeServicing = JokeService()) {
-        self.service = service
-    }
+    @Dependency(\.jokeService) var service
 
     func load() async {
         isLoading = true

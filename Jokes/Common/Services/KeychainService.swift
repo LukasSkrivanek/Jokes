@@ -1,6 +1,6 @@
 import Foundation
 
-final class KeychainService: KeychainServicing {
+final class KeychainService: KeychainServicing, @unchecked Sendable {
     private enum Keys {
         static let authToken = "auth_token"
         static let email = "user_email"

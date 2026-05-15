@@ -1,6 +1,6 @@
 import Foundation
 
-final class JokeService: JokeServicing {
+final class JokeService: JokeServicing, @unchecked Sendable {
     private let apiManager: APIManaging
 
     init(apiManager: APIManaging = APIManager.shared) {

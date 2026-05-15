@@ -1,4 +1,5 @@
 import Combine
+import Dependencies
 import Foundation
 
 final class LoginStore: ObservableObject {
@@ -19,20 +20,13 @@ final class LoginStore: ObservableObject {
 
     @Published var state = State()
 
-    private let authManager: FirebaseAuthManaging
-    private let keychainService: KeychainServicing
+    @Dependency(\.authManager) private var authManager
+    @Dependency(\.keychainService) private var keychainService
+
     private let eventSubject = PassthroughSubject<LoginEvent, Never>()
 
     var eventPublisher: AnyPublisher<LoginEvent, Never> {
         eventSubject.eraseToAnyPublisher()
-    }
-
-    init(
-        authManager: FirebaseAuthManaging = FirebaseAuthManager(),
-        keychainService: KeychainServicing = KeychainService()
-    ) {
-        self.authManager = authManager
-        self.keychainService = keychainService
     }
 
     @MainActor
