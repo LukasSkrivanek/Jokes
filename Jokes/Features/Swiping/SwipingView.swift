@@ -15,24 +15,22 @@ struct SwipingView: View {
                 VStack {
                     if store.state.isLoading {
                         ProgressView()
-                    } else if !store.state.sections.isEmpty {
+                    } else if !store.state.cards.isEmpty {
                         ZStack {
-                            ForEach(store.state.sections) { section in
-                                if let joke = section.jokes.first {
-                                    SwipingCard(
-                                        configuration: SwipingCard.Configuration(
-                                            title: section.title,
-                                            description: joke.text
-                                        ),
-                                        onSwipe: { swipeState in
-                                            if case .finished = swipeState {
-                                                Task {
-                                                    await store.send(.jokeRemoved(joke))
-                                                }
+                            ForEach(store.state.cards) { card in
+                                SwipingCard(
+                                    configuration: SwipingCard.Configuration(
+                                        title: card.categoryTitle,
+                                        description: card.jokeText
+                                    ),
+                                    onSwipe: { swipeState in
+                                        if case .finished = swipeState {
+                                            Task {
+                                                await store.send(.cardRemoved(card))
                                             }
                                         }
-                                    )
-                                }
+                                    }
+                                )
                             }
                         }
                         .padding(.top, geometry.size.height / 20)

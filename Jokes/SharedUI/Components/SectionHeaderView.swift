@@ -7,7 +7,7 @@ struct SectionHeaderView: View {
         Text(title)
             .padding()
             .textStyle(textType: .sectionTitle)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
             .background(.bg)
     }
 }

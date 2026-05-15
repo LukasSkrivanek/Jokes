@@ -8,6 +8,7 @@ final class HorizontalScrollingCollectionViewCell: UICollectionViewCell, Reusabl
     )
 
     private var jokes: [Joke] = []
+    var onTap: (() -> Void)?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -18,8 +19,9 @@ final class HorizontalScrollingCollectionViewCell: UICollectionViewCell, Reusabl
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(with jokes: [Joke]) {
+    func configure(with jokes: [Joke], onTap: (() -> Void)? = nil) {
         self.jokes = jokes
+        self.onTap = onTap
         collectionView.reloadData()
     }
 }
@@ -35,6 +37,7 @@ private extension HorizontalScrollingCollectionViewCell {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.showsHorizontalScrollIndicator = false
+        collectionView.isPagingEnabled = true
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "ImageCell")
@@ -58,18 +61,25 @@ extension HorizontalScrollingCollectionViewCell: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCell", for: indexPath)
-        let joke = jokes[indexPath.item]
         cell.contentConfiguration = UIHostingConfiguration {
-            Text(joke.text)
-                .font(.system(size: 15))
-                .multilineTextAlignment(.center)
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.bg)
-                .cornerRadius(UIConstants.cornerRadius)
-                .bordered(cornerRadius: UIConstants.cornerRadius)
+            if let url = try? ImagesRouter.random.asURLRequest().url {
+                AsyncImage(url: url) { image in
+                    image
+                        .resizableBordered(cornerRadius: UIConstants.cornerRadius)
+                        .scaledToFit()
+                } placeholder: {
+                    Color.gray
+                }
+            }
         }
         return cell
+    }
+}
+
+// MARK: - UICollectionViewDelegate
+extension HorizontalScrollingCollectionViewCell: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        onTap?()
     }
 }
 
@@ -80,6 +90,6 @@ extension HorizontalScrollingCollectionViewCell: UICollectionViewDelegateFlowLay
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        CGSize(width: collectionView.bounds.width - 20, height: collectionView.bounds.height)
+        CGSize(width: collectionView.bounds.width, height: collectionView.bounds.height)
     }
 }

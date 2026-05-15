@@ -3,18 +3,24 @@ import Combine
 
 @MainActor
 final class SwipingStore: ObservableObject {
-    
+
     struct State {
-        var sections: [JokeSection] = []
+        var cards: [Card] = []
         var isLoading = false
         var error: Error?
+
+        struct Card: Identifiable, Hashable {
+            let id: String
+            let categoryTitle: String
+            let jokeText: String
+        }
     }
 
     enum Action {
         case load
-        case sectionsLoaded([JokeSection])
+        case cardsLoaded([State.Card])
         case failed(Error)
-        case jokeRemoved(Joke)
+        case cardRemoved(State.Card)
     }
 
     @Published private(set) var state = State()
@@ -32,16 +38,16 @@ final class SwipingStore: ObservableObject {
         case .load:
             await loadJokes()
 
-        case .sectionsLoaded(let sections):
-            state.sections = sections
+        case .cardsLoaded(let cards):
+            state.cards = cards
             state.isLoading = false
 
         case .failed(let error):
             state.error = error
             state.isLoading = false
 
-        case .jokeRemoved(let joke):
-            state.sections.removeAll { $0.jokes.contains(joke) }
+        case .cardRemoved(let card):
+            state.cards.removeAll { $0.id == card.id }
         }
     }
 }
@@ -59,19 +65,18 @@ private extension SwipingStore {
     func loadJokes(for category: String) async {
         state.isLoading = true
         do {
-            let jokes: [Joke] = try await withThrowingTaskGroup(of: Joke.self) { group in
+            let cards: [State.Card] = try await withThrowingTaskGroup(of: State.Card.self) { group in
                 for _ in 0..<5 {
                     group.addTask {
                         let response = try await self.service.fetchJoke(for: category)
-                        return Joke(id: response.id, text: response.value)
+                        return State.Card(id: response.id, categoryTitle: category.capitalized, jokeText: response.value)
                     }
                 }
-                var result: [Joke] = []
-                for try await joke in group { result.append(joke) }
+                var result: [State.Card] = []
+                for try await card in group { result.append(card) }
                 return result
             }
-            let section = JokeSection(title: category.capitalized, jokes: jokes)
-            await send(.sectionsLoaded([section]))
+            await send(.cardsLoaded(cards))
         } catch {
             await send(.failed(error))
         }
@@ -81,19 +86,18 @@ private extension SwipingStore {
         state.isLoading = true
         do {
             let categories = try await service.fetchCategories()
-            let sections: [JokeSection] = try await withThrowingTaskGroup(of: JokeSection.self) { group in
+            let cards: [State.Card] = try await withThrowingTaskGroup(of: State.Card.self) { group in
                 for category in categories {
                     group.addTask {
                         let response = try await self.service.fetchJoke(for: category)
-                        let joke = Joke(id: response.id, text: response.value)
-                        return JokeSection(title: category.capitalized, jokes: [joke])
+                        return State.Card(id: response.id, categoryTitle: category.capitalized, jokeText: response.value)
                     }
                 }
-                var result: [JokeSection] = []
-                for try await section in group { result.append(section) }
-                return result.sorted { $0.title < $1.title }
+                var result: [State.Card] = []
+                for try await card in group { result.append(card) }
+                return result.sorted { $0.categoryTitle < $1.categoryTitle }
             }
-            await send(.sectionsLoaded(sections))
+            await send(.cardsLoaded(cards))
         } catch {
             await send(.failed(error))
         }

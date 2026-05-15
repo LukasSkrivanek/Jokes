@@ -9,12 +9,15 @@ struct ScratchView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
-                LinearGradient(
-                    colors: [.brown.opacity(0.5), .brown],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .cornerRadius(UIConstants.cornerRadius)
+                if let url = try? ImagesRouter.random.asURLRequest().url {
+                    AsyncImage(url: url) { image in
+                        image
+                            .resizableBordered(cornerRadius: UIConstants.cornerRadius)
+                            .scaledToFit()
+                    } placeholder: {
+                        ProgressView()
+                    }
+                }
 
                 RoundedRectangle(cornerRadius: UIConstants.cornerRadius)
                     .fill(.bg)

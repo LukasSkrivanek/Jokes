@@ -27,22 +27,34 @@ final class JokesDataProvider: ObservableObject {
     func load() async {
         isLoading = true
         defer { isLoading = false }
+        let numberOfJokesPerCategory = 3
         do {
             let categories = try await service.fetchCategories()
-            sections = try await withThrowingTaskGroup(of: JokeSection.self) { group in
+            var responses: [JokeResponse] = []
+            try await withThrowingTaskGroup(of: JokeResponse.self) { group in
                 for category in categories {
-                    group.addTask {
-                        let response = try await self.service.fetchJoke(for: category)
-                        let joke = Joke(id: response.id, text: response.value)
-                        return JokeSection(title: category.capitalized, jokes: [joke])
+                    for _ in 0..<numberOfJokesPerCategory {
+                        group.addTask {
+                            try await self.service.fetchJoke(for: category)
+                        }
                     }
                 }
-                var result: [JokeSection] = []
-                for try await section in group {
-                    result.append(section)
+                for try await response in group {
+                    responses.append(response)
                 }
-                return result.sorted { $0.title < $1.title }
             }
+            var seen = Set<String>()
+            let uniqueResponses = responses.filter { seen.insert($0.id).inserted }
+            let grouped = Dictionary(grouping: uniqueResponses) { $0.categories.first ?? "" }
+            sections = grouped
+                .filter { !$0.key.isEmpty }
+                .map { category, categoryResponses in
+                    JokeSection(
+                        title: category.capitalized,
+                        jokes: categoryResponses.map { Joke(id: $0.id, text: $0.value) }
+                    )
+                }
+                .sorted { $0.title < $1.title }
         } catch {
             self.error = error
         }

@@ -42,6 +42,7 @@ private extension CategoriesViewController {
         layout.sectionHeadersPinToVisibleBounds = false
 
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
+        collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         collectionView.backgroundColor = .bg
         collectionView.showsVerticalScrollIndicator = false
         collectionView.delegate = self
@@ -75,7 +76,9 @@ private extension CategoriesViewController {
             guard let self else { return UICollectionViewCell() }
             let section = self.dataSource.snapshot().sectionIdentifiers[indexPath.section]
             let cell: HorizontalScrollingCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
-            cell.configure(with: section.jokes)
+            cell.configure(with: section.jokes, onTap: { [weak self] in
+                self?.eventSubject.send(.categorySelected(section.title.lowercased()))
+            })
             return cell
         }
 
@@ -126,9 +129,4 @@ extension CategoriesViewController: UICollectionViewDelegateFlowLayout {
 }
 
 // MARK: - UICollectionViewDelegate
-extension CategoriesViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let section = dataSource.snapshot().sectionIdentifiers[indexPath.section]
-        eventSubject.send(.categorySelected(section.title.lowercased()))
-    }
-}
+extension CategoriesViewController: UICollectionViewDelegate {}
