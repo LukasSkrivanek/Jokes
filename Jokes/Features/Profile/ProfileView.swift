@@ -10,7 +10,7 @@ struct ProfileView: View {
         "Store Pattern",
         "DiffableDataSource",
         "Async/Await + TaskGroup",
-        "Chuck Norris API"
+        "Dependencies (Point-Free)"
     ]
 
     var body: some View {
