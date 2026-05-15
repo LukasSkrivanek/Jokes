@@ -2,7 +2,6 @@ import Dependencies
 import Foundation
 import Combine
 
-@MainActor
 final class SwipingStore: ObservableObject {
 
     struct State {
@@ -33,6 +32,7 @@ final class SwipingStore: ObservableObject {
         self.category = category
     }
 
+    @MainActor
     func send(_ action: Action) async {
         switch action {
         case .load:

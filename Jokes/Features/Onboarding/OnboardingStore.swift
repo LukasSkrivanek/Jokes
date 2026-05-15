@@ -64,6 +64,7 @@ final class OnboardingStore: ObservableObject {
 
     @Published private(set) var state = State()
 
+    @MainActor
     func send(_ action: Action) {
         switch action {
         case .next:
