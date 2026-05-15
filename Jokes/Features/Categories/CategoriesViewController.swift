@@ -9,23 +9,39 @@ final class CategoriesViewController: UIViewController, EventEmitting {
 
     private let eventSubject = PassthroughSubject<Event, Never>()
     var eventPublisher: AnyPublisher<Event, Never> { eventSubject.eraseToAnyPublisher() }
+    private let store: CategoriesStore
     private lazy var collectionView = UICollectionView(
         frame: .zero,
         collectionViewLayout: UICollectionViewFlowLayout()
     )
+    private lazy var activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.color = .white
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
 
     typealias DataSource = UICollectionViewDiffableDataSource<JokeSection, Joke>
     typealias Snapshot = NSDiffableDataSourceSnapshot<JokeSection, Joke>
 
-    private lazy var dataProvider = JokesDataProvider()
     private lazy var dataSource = makeDataSource()
     private var cancellables = Set<AnyCancellable>()
+
+    init(store: CategoriesStore) {
+        self.store = store
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Categories"
         setup()
-        Task { await dataProvider.load() }
+        Task { await store.send(.load) }
     }
 }
 
@@ -33,7 +49,16 @@ final class CategoriesViewController: UIViewController, EventEmitting {
 private extension CategoriesViewController {
     func setup() {
         setupCollectionView()
+        setupActivityIndicator()
         observeData()
+    }
+
+    func setupActivityIndicator() {
+        view.addSubview(activityIndicator)
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
 
     func setupCollectionView() {
@@ -57,9 +82,19 @@ private extension CategoriesViewController {
     }
 
     func observeData() {
-        dataProvider.$sections
+        store.$state
+            .map(\.sections)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] sections in
                 self?.applySnapshot(sections: sections)
+            }
+            .store(in: &cancellables)
+
+        store.$state
+            .map(\.isLoading)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isLoading in
+                isLoading ? self?.activityIndicator.startAnimating() : self?.activityIndicator.stopAnimating()
             }
             .store(in: &cancellables)
     }

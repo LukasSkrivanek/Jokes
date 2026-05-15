@@ -7,9 +7,10 @@ final class CategoriesNavigationCoordinator: NSObject, NavigationControllerCoord
     var childCoordinators = [Coordinator]()
 
     private var cancellables = Set<AnyCancellable>()
+    private let store = CategoriesStore()
 
     func start() {
-        let viewController = CategoriesViewController()
+        let viewController = CategoriesViewController(store: store)
         viewController.eventPublisher
             .sink { [weak self] event in
                 switch event {
