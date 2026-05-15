@@ -1,4 +1,5 @@
 import Combine
+import Dependencies
 import SwiftUI
 import UIKit
 
@@ -18,6 +19,7 @@ final class ProfileNavigationCoordinator: NSObject, NavigationControllerCoordina
         eventSubject.eraseToAnyPublisher()
     }
 
+    @Dependency(\.authManager) private var authManager
     private lazy var store: ProfileStore = makeStore()
 
     func start() {
@@ -60,7 +62,7 @@ private extension ProfileNavigationCoordinator {
     }
 
     func logout() {
-        try? FirebaseAuthManager().signOut()
+        try? authManager.signOut()
         eventSubject.send(.loggedOut(self))
     }
 }

@@ -56,8 +56,11 @@ private extension MainTabBarCoordinator {
             .sink { [weak self] event in
                 switch event {
                 case .loggedOut(let coordinator):
-                    self?.release(coordinator: coordinator)
-                    self?.eventSubject.send(.loggedOut(self!))
+                    guard let self else {
+                        return
+                    }
+                    release(coordinator: coordinator)
+                    eventSubject.send(.loggedOut(self))
                 }
             }
             .store(in: &cancellables)
@@ -73,9 +76,13 @@ private extension MainTabBarCoordinator {
 // MARK: - UIViewController alert helper
 extension UIViewController {
     func showInfoAlert(title: String, message: String? = nil, handler: (() -> Void)? = nil) {
-        guard presentedViewController == nil else { return }
+        guard presentedViewController == nil else {
+            return
+        }
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in handler?() })
+        alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+            handler?()
+        })
         present(alert, animated: true)
     }
 }

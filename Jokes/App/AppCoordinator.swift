@@ -73,7 +73,9 @@ private extension AppCoordinator {
     }
 
     func showOnboardingIfNeeded() {
-        guard !UserDefaults.standard.bool(forKey: "hasSeenOnboarding") else { return }
+        guard !UserDefaults.standard.bool(forKey: "hasSeenOnboarding") else {
+            return
+        }
         let coordinator = OnboardingNavigationCoordinator()
         startChildCoordinator(coordinator)
         coordinator.eventPublisher
@@ -91,7 +93,9 @@ private extension AppCoordinator {
 
     func transition(to viewController: UIViewController) {
         rootViewController = viewController
-        guard let window else { return }
+        guard let window else {
+            return
+        }
         UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
             window.rootViewController = viewController
         }

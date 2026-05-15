@@ -43,7 +43,9 @@ private extension OnboardingNavigationCoordinator {
             .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] pageIndex in
-                guard let page = OnboardingStore.Page(rawValue: pageIndex) else { return }
+                guard let page = OnboardingStore.Page(rawValue: pageIndex) else {
+                    return
+                }
                 self?.navigationController.pushViewController(
                     self?.makeViewController(for: page) ?? UIViewController(),
                     animated: true
@@ -57,7 +59,9 @@ private extension OnboardingNavigationCoordinator {
             .first()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                guard let self else { return }
+                guard let self else {
+                    return
+                }
                 eventSubject.send(.dismiss(self))
             }
             .store(in: &cancellables)

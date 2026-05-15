@@ -31,7 +31,9 @@ private extension LoginNavigationCoordinator {
             .sink { [weak self] event in
                 switch event {
                 case .loggedIn:
-                    guard let self else { return }
+                    guard let self else {
+                        return
+                    }
                     eventSubject.send(.loggedIn(self))
                 }
             }
