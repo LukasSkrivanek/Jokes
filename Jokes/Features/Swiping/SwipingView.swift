@@ -1,7 +1,12 @@
 import SwiftUI
 
 struct SwipingView: View {
-    @StateObject private var store = SwipingStore()
+    
+    @StateObject private var store: SwipingStore
+
+    init(category: String? = nil) {
+        _store = StateObject(wrappedValue: SwipingStore(category: category))
+    }
 
     var body: some View {
         GeometryReader { geometry in

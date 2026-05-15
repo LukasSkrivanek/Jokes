@@ -2,7 +2,13 @@ import UIKit
 import Combine
 import SwiftUI
 
-final class CategoriesViewController: UIViewController {
+final class CategoriesViewController: UIViewController, EventEmitting {
+    enum Event {
+        case categorySelected(String)
+    }
+
+    private let eventSubject = PassthroughSubject<Event, Never>()
+    var eventPublisher: AnyPublisher<Event, Never> { eventSubject.eraseToAnyPublisher() }
     private lazy var collectionView = UICollectionView(
         frame: .zero,
         collectionViewLayout: UICollectionViewFlowLayout()
@@ -123,7 +129,6 @@ extension CategoriesViewController: UICollectionViewDelegateFlowLayout {
 extension CategoriesViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let section = dataSource.snapshot().sectionIdentifiers[indexPath.section]
-        let joke = section.jokes[indexPath.item]
-        showInfoAlert(title: section.title, message: joke.text)
+        eventSubject.send(.categorySelected(section.title.lowercased()))
     }
 }

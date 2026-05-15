@@ -1,7 +1,9 @@
 import Foundation
+import Combine
 
 @MainActor
 final class SwipingStore: ObservableObject {
+    
     struct State {
         var sections: [JokeSection] = []
         var isLoading = false
@@ -18,9 +20,11 @@ final class SwipingStore: ObservableObject {
     @Published private(set) var state = State()
 
     private let service: JokeServicing
+    private let category: String?
 
-    init(service: JokeServicing = JokeService()) {
+    init(service: JokeServicing = JokeService(), category: String? = nil) {
         self.service = service
+        self.category = category
     }
 
     func send(_ action: Action) async {
@@ -45,6 +49,35 @@ final class SwipingStore: ObservableObject {
 // MARK: - Private
 private extension SwipingStore {
     func loadJokes() async {
+        if let category {
+            await loadJokes(for: category)
+        } else {
+            await loadAllCategories()
+        }
+    }
+
+    func loadJokes(for category: String) async {
+        state.isLoading = true
+        do {
+            let jokes: [Joke] = try await withThrowingTaskGroup(of: Joke.self) { group in
+                for _ in 0..<5 {
+                    group.addTask {
+                        let response = try await self.service.fetchJoke(for: category)
+                        return Joke(id: response.id, text: response.value)
+                    }
+                }
+                var result: [Joke] = []
+                for try await joke in group { result.append(joke) }
+                return result
+            }
+            let section = JokeSection(title: category.capitalized, jokes: jokes)
+            await send(.sectionsLoaded([section]))
+        } catch {
+            await send(.failed(error))
+        }
+    }
+
+    func loadAllCategories() async {
         state.isLoading = true
         do {
             let categories = try await service.fetchCategories()
