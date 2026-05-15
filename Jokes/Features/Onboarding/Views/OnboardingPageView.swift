@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct OnboardingPageView: View {
+
     let symbolName: String
     let title: String
     let subtitle: String
