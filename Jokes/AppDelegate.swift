@@ -5,6 +5,7 @@
 //  Created by Skrivanek, Lukas on 13.05.2026.
 //
 
+import FirebaseCore
 import UIKit
 
 @main
@@ -13,7 +14,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        true
+        FirebaseApp.configure()
+        return true
     }
 
     func application(
