@@ -4,6 +4,7 @@ final class KeychainService: KeychainServicing, @unchecked Sendable {
     private enum Keys {
         static let authToken = "auth_token"
         static let email = "user_email"
+        static let password = "user_password"
     }
 
     private let manager: KeychainManaging
@@ -34,5 +35,17 @@ final class KeychainService: KeychainServicing, @unchecked Sendable {
 
     func removeEmail() throws {
         try manager.remove(key: Keys.email)
+    }
+
+    func storePassword(_ password: String) throws {
+        try manager.store(key: Keys.password, value: password)
+    }
+
+    func fetchPassword() throws -> String {
+        try manager.fetch(key: Keys.password)
+    }
+
+    func removePassword() throws {
+        try manager.remove(key: Keys.password)
     }
 }

@@ -7,4 +7,7 @@ protocol KeychainServicing: Sendable {
     func storeEmail(_ email: String) throws
     func fetchEmail() throws -> String
     func removeEmail() throws
+    func storePassword(_ password: String) throws
+    func fetchPassword() throws -> String
+    func removePassword() throws
 }
