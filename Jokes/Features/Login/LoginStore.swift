@@ -33,13 +33,15 @@ final class LoginStore: ObservableObject {
     func send(_ action: Action) {
         switch action {
         case .viewDidAppear:
-            loadStoredEmail()
+            loadStoredCredentials()
         case .rememberMeChanged(let remember):
             state.rememberMe = remember
             if remember {
                 try? keychainService.storeEmail(state.email)
+                try? keychainService.storePassword(state.password)
             } else {
                 try? keychainService.removeEmail()
+                try? keychainService.removePassword()
             }
         case .signIn:
             Task { await signIn() }
@@ -51,10 +53,13 @@ final class LoginStore: ObservableObject {
 
 // MARK: - Private
 private extension LoginStore {
-    func loadStoredEmail() {
+    func loadStoredCredentials() {
         if let email = try? keychainService.fetchEmail() {
             state.email = email
             state.rememberMe = true
+        }
+        if let password = try? keychainService.fetchPassword() {
+            state.password = password
         }
     }
 
@@ -67,6 +72,7 @@ private extension LoginStore {
             try await authManager.signIn(credentials)
             if state.rememberMe {
                 try? keychainService.storeEmail(state.email)
+                try? keychainService.storePassword(state.password)
             }
             eventSubject.send(.loggedIn)
         } catch {
