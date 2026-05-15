@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		74E2045E2FB71C98005B870B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 74E2045D2FB71C98005B870B /* FirebaseAuth */; };
+		74E2046E2FB71DAE005B870B /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 74E2046D2FB71DAE005B870B /* KeychainAccess */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		74E2FB4B2FB4B191005B870B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +70,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				74E2046E2FB71DAE005B870B /* KeychainAccess in Frameworks */,
+				74E2045E2FB71C98005B870B /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +132,8 @@
 			);
 			name = Jokes;
 			packageProductDependencies = (
+				74E2045D2FB71C98005B870B /* FirebaseAuth */,
+				74E2046D2FB71DAE005B870B /* KeychainAccess */,
 			);
 			productName = Jokes;
 			productReference = 74E2FB342FB4B18E005B870B /* Jokes.app */;
@@ -208,6 +217,10 @@
 			);
 			mainGroup = 74E2FB2B2FB4B18E005B870B;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				74E2045C2FB71C98005B870B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				74E2046C2FB71DAE005B870B /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 74E2FB352FB4B18E005B870B /* Products */;
 			projectDirPath = "";
@@ -589,6 +602,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		74E2045C2FB71C98005B870B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.13.0;
+			};
+		};
+		74E2046C2FB71DAE005B870B /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		74E2045D2FB71C98005B870B /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 74E2045C2FB71C98005B870B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		74E2046D2FB71DAE005B870B /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 74E2046C2FB71DAE005B870B /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 74E2FB2C2FB4B18E005B870B /* Project object */;
 }
